@@ -1,0 +1,69 @@
+﻿@page "/"
+@using InsuranceSystem;
+
+<h1>Patient Insurance Check</h1>
+
+<label for="patientName">Patient Name:</label>
+
+
+<select name="patientName" id="patientName" class="form-control" @bind="@selectedPatientID">
+    @if (patientRepo != null)
+    {
+        <option value="0000">Select a patient </option>
+
+        @foreach (var patient in patientRepo.getAllPatients())
+        {
+            <option value="@patient.getPolicyNumber()">@patient.getPatientName() </option>
+        }
+    }
+</select>
+<br>
+
+<label for="medicalProcedure">Medical Procedure:</label>
+<select name="medicalProcedure" id="medicalProcedure"  @bind="@selectedProcedure">
+    <option value="0">Broken Arm</option>
+    <option value="1">Broken Wrist</option>
+    <option value="2">Broken Finger</option>
+    <option value="3">Broken Leg</option>
+    <option value="4">Broken Toe</option>
+</select>
+<br>
+
+<label for="amountCharged">Amount Charged:</label>
+
+<input type="text" id="amountCharged" name="amountCharged" @bind="strAmountCharged">
+<br>
+
+<button class="btn btn-primary" @onclick="CalculateCoverage">Check Coverage</button>
+
+<p>Amount Covered: @strAmountCovered </p>
+
+
+@code {
+    // This is the C# code that runs this page
+    PatientRepository patientRepo = new PatientRepository();
+
+    private string strAmountCharged;
+    private string strAmountCovered;
+    string selectedPatientID;
+    string selectedProcedure;
+
+
+
+    private void CalculateCoverage()
+    {
+        decimal amountCharged = decimal.Parse(strAmountCharged);
+        int selectProcedureNumber = int.Parse(selectedProcedure);
+        InsuranceInterface selectPatient = patientRepo.getPatientByPolicy(selectedPatientID);
+        decimal amountCovered = selectPatient.CoverageAmount(selectProcedureNumber, amountCharged);
+        strAmountCovered = amountCovered.ToString("0.00");
+    }
+
+
+    protected override void OnInitialized()
+    {
+        // no initialization needed yet
+    }
+
+}
+
